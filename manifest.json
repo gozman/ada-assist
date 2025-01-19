@@ -15,6 +15,14 @@
       }
     }
   },
+  "parameters": [
+    {
+      "name": "hashedId",
+      "type": "text",
+      "required": true,
+      "secure": true
+    }
+  ],
   "version": "1.0.0",
   "frameworkVersion": "2.0",
   "permissions": {

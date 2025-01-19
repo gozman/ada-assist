@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://277e7130-e6bc-47bb-a8c4-7c1a6f0e3aae-00-tfy4lvq9brpf.picard.replit.dev/api';
 
 // Get hashedId from app metadata
 async function getHashedId() {
@@ -159,7 +159,8 @@ async function waitForAdaResponse(ticketId) {
   return new Promise((resolve, reject) => {
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/messages?ticketId=${ticketId}`);
+        const hashedId = await getHashedId();
+        const response = await fetch(`${API_BASE_URL}/messages?ticketId=${ticketId}&hashedId=${hashedId}`);
         const data = await response.json();
         
         // Access the latest message
@@ -179,7 +180,7 @@ async function waitForAdaResponse(ticketId) {
         clearInterval(pollInterval);
         reject(error);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 2000); // Poll every 5 seconds
   });
 }
 
