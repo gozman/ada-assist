@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://277e7130-e6bc-47bb-a8c4-7c1a6f0e3aae-00-tfy4lvq9brpf.picard.replit.dev/api';
+const API_BASE_URL = process.env.ADA_ASSIST_URL || 'https://ada-assist.replit.app/api';
 
 // Get hashedId from app metadata
 async function getHashedId() {
