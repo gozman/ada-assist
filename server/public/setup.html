@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Configuration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Setup Configuration</h1>
+    <form id="setupForm">
+        <div class="form-group">
+            <label for="suncoAppId">SunCo App ID</label>
+            <input type="text" id="suncoAppId" name="suncoAppId" required>
+        </div>
+        <div class="form-group">
+            <label for="suncoKeyId">SunCo Key ID</label>
+            <input type="text" id="suncoKeyId" name="suncoKeyId" required>
+        </div>
+        <div class="form-group">
+            <label for="suncoSecret">SunCo Secret</label>
+            <input type="password" id="suncoSecret" name="suncoSecret" required>
+        </div>
+        <div class="form-group">
+            <label for="adaInstanceName">Ada Instance Name</label>
+            <input type="text" id="adaInstanceName" name="adaInstanceName" required>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="successMessage" class="success-message"></div>
+    <div id="errorMessage" class="error-message"></div>
+
+    <script>
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                suncoAppId: document.getElementById('suncoAppId').value,
+                suncoKeyId: document.getElementById('suncoKeyId').value,
+                suncoSecret: document.getElementById('suncoSecret').value,
+                adaInstanceName: document.getElementById('adaInstanceName').value
+            };
+
+            try {
+                const response = await fetch('/setup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.textContent = `Configuration saved successfully! Your hashed ID is: ${data.hashedId}`;
+                    successMsg.style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = `Error: ${error.message}`;
+                errorMsg.style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

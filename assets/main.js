@@ -1,13 +1,25 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
+// Get hashedId from app metadata
+async function getHashedId() {
+  const metadata = await client.metadata();
+  const hashedId = metadata.settings.hashedId;
+  if (!hashedId) {
+    throw new Error('Configuration ID not found. Please complete setup first.');
+  }
+  return hashedId;
+}
+
 async function sendMessage(ticketId, conversation) {
   try {
+    const hashedId = await getHashedId();
     const response = await fetch(`${API_BASE_URL}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         ticketId,
-        customerMessage: conversation // Now sending the formatted conversation string
+        customerMessage: conversation,
+        hashedId
       })
     });
     const data = await response.json();
@@ -20,8 +32,10 @@ async function sendMessage(ticketId, conversation) {
 
 async function getMessages(ticketId, afterMessageId = null) {
   try {
+    const hashedId = await getHashedId();
     const url = new URL(`${API_BASE_URL}/messages`);
     url.searchParams.append('ticketId', ticketId);
+    url.searchParams.append('hashedId', hashedId);
     if (afterMessageId) {
       url.searchParams.append('after', afterMessageId);
     }
@@ -178,14 +192,26 @@ async function handleNewMessage(ticketId) {
   } catch (error) {
     console.error('Error handling new message:', error);
     const container = document.querySelector('#responseContainer');
-    container.innerHTML = `
-      <div class="alert alert-danger mt-4" role="alert">
-        Failed to get Ada's suggestion. Please try again.
-      </div>
-      <button id="generateResponse" class="c-btn c-btn--primary c-btn--md c-btn--full">
-        Generate Response
-      </button>      
-    `;
+    if (error.message.includes('Configuration ID not found')) {
+      container.innerHTML = `
+        <div class="c-alert c-alert--error u-mb-sm">
+          ${error.message}
+        </div>
+        <a href="${API_BASE_URL}/setup" target="_blank" class="c-btn c-btn--primary c-btn--md c-btn--full">
+          Complete Setup
+        </a>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="c-alert c-alert--error u-mb-sm">
+          Failed to get Ada's suggestion. Please try again.
+        </div>
+        <button id="generateResponse" class="c-btn c-btn--primary c-btn--md c-btn--full">
+          Generate Response
+        </button>
+      `;
+    }
+    resizeToFit();
   }
 }
 
